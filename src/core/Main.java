@@ -6,35 +6,40 @@ import org.codehaus.jettison.json.JSONObject;
 
 public class Main {
 
+	public static final String ORGANIZATION = "organization";
+	public static final String STATUS = "status";
+	public static final String OLD_STATUS = "oldStatus";
+	public static final String OPS_FLAG = "OpsFlag";
+
 	public static void main(String[] args) throws JSONException {
 		final JSONObject army = new JSONObject();
-		army.put("organization", "Army");
-		army.put("status", "sustaining");
-		army.put("oldStatus", "on-boarding");
+		army.put(ORGANIZATION, "Army");
+		army.put(STATUS, "sustaining");
+		army.put(OLD_STATUS, "on-boarding");
 		army.put("deeProv", "123456");
 		army.put("bbProv", "7890");
-		army.put("OpsFlag", "statusChange");
+		army.put(OPS_FLAG, "statusChange");
 
 		final JSONObject af = new JSONObject();
-		af.put("organization", "Air Force");
-		af.put("status", "on-boarding");
+		af.put(ORGANIZATION, "Air Force");
+		af.put(STATUS, "on-boarding");
 		af.put("deeProv", "23432");
 		af.put("bbProv", "4563");
-		af.put("OpsFlag", "edit");
+		af.put(OPS_FLAG, "edit");
 
 		final JSONObject navy = new JSONObject();
-		navy.put("organization", "Navy");
-		navy.put("status", "sustaining");
+		navy.put(ORGANIZATION, "Navy");
+		navy.put(STATUS, "sustaining");
 		navy.put("deeProv", "23245");
 		navy.put("bbProv", "3256");
-		navy.put("OpsFlag", "edit");
+		navy.put(OPS_FLAG, "edit");
 
 		final JSONObject cc = new JSONObject();
-		cc.put("organization", "Coast Guard");
-		cc.put("status", "pilot");
+		cc.put(ORGANIZATION, "Coast Guard");
+		cc.put(STATUS, "pilot");
 		cc.put("deeProv", "23245");
 		cc.put("bbProv", "3256");
-		cc.put("OpsFlag", "create");
+		cc.put(OPS_FLAG, "create");
 
 		final JSONArray arr = new JSONArray();
 		arr.put(army);
@@ -55,16 +60,16 @@ public class Main {
 		}
 
 		final JSONObject respObj1 = new JSONObject();
-		respObj1.put("status", "on-boarding");
-		respObj1.put("organization", "Army");
+		respObj1.put(STATUS, "on-boarding");
+		respObj1.put(ORGANIZATION, "Army");
 		respObj1.put("dee", "231432");
 		respObj1.put("bb", "23541");
 		respObj1.put("operation", "update");
 		respObj1.put("operStatus", "success");
 
 		final JSONObject respObj2 = new JSONObject();
-		respObj2.put("status", "on-boarding");
-		respObj2.put("organization", "Air Force");
+		respObj2.put(STATUS, "on-boarding");
+		respObj2.put(ORGANIZATION, "Air Force");
 		respObj2.put("dee", "10342");
 		respObj2.put("bb", "4512");
 		respObj2.put("operation", "update");
