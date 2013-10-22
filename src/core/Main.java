@@ -6,32 +6,36 @@ import org.codehaus.jettison.json.JSONObject;
 
 public class Main {
 
+	public static final String ST_PILOT = "pilot";
+	public static final String ST_ON_BOARDING = "on-boarding";
+	public static final String ST_SUSTAINING = "sustaining";
+
 	public static void main(String[] args) throws JSONException {
 		final JSONObject army = new JSONObject();
 		army.put("organization", "Army");
-		army.put("status", "sustaining");
-		army.put("oldStatus", "on-boarding");
+		army.put("status", ST_SUSTAINING);
+		army.put("oldStatus", ST_ON_BOARDING);
 		army.put("deeProv", "123456");
 		army.put("bbProv", "7890");
 		army.put("OpsFlag", "statusChange");
 
 		final JSONObject af = new JSONObject();
 		af.put("organization", "Air Force");
-		af.put("status", "on-boarding");
+		af.put("status", ST_ON_BOARDING);
 		af.put("deeProv", "23432");
 		af.put("bbProv", "4563");
 		af.put("OpsFlag", "edit");
 
 		final JSONObject navy = new JSONObject();
 		navy.put("organization", "Navy");
-		navy.put("status", "sustaining");
+		navy.put("status", ST_SUSTAINING);
 		navy.put("deeProv", "23245");
 		navy.put("bbProv", "3256");
 		navy.put("OpsFlag", "edit");
 
 		final JSONObject cc = new JSONObject();
 		cc.put("organization", "Coast Guard");
-		cc.put("status", "pilot");
+		cc.put("status", ST_PILOT);
 		cc.put("deeProv", "23245");
 		cc.put("bbProv", "3256");
 		cc.put("OpsFlag", "create");
@@ -55,7 +59,7 @@ public class Main {
 		}
 
 		final JSONObject respObj1 = new JSONObject();
-		respObj1.put("status", "on-boarding");
+		respObj1.put("status", ST_ON_BOARDING);
 		respObj1.put("organization", "Army");
 		respObj1.put("dee", "231432");
 		respObj1.put("bb", "23541");
@@ -63,7 +67,7 @@ public class Main {
 		respObj1.put("operStatus", "success");
 
 		final JSONObject respObj2 = new JSONObject();
-		respObj2.put("status", "on-boarding");
+		respObj2.put("status", ST_ON_BOARDING);
 		respObj2.put("organization", "Air Force");
 		respObj2.put("dee", "10342");
 		respObj2.put("bb", "4512");
