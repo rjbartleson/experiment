@@ -28,30 +28,30 @@ public class Main {
 
 	public static void main(String[] args) throws JSONException {
 		// processJSONExample();
-		processDateToIntegerMapping();
+		processDateToCounterMapping();
 	}
 
-	protected static void processDateToIntegerMapping() {
+	protected static void processDateToCounterMapping() {
 		/*
 		 * set up
 		 */
-		String unit = "weeks";
-		int nmbrOfUnits = 8;
+		String unit = "days"; // or "weeks"
+		int nmbrOfUnits = 35;
 		Calendar currCal = new GregorianCalendar(TZ_UTC);
 		currCal.add(Calendar.DAY_OF_MONTH, -1);
 		String endDate = DT_FMTR.format(currCal.getTime());
-		currCal.add(Calendar.DAY_OF_MONTH, -55);
+		currCal.add(Calendar.DAY_OF_MONTH, -nmbrOfUnits + 1);
 		String startDate = DT_FMTR.format(currCal.getTime());
 
 		/*
 		 * test code
 		 */
-		List<Integer> bins = new ArrayList<Integer>();
+		List<Counter> bins = new ArrayList<Counter>();
 		for (int i = 0; i < nmbrOfUnits; i++) {
-			bins.add(new Integer(i));
+			bins.add(new Counter(i));
 		}
 
-		Map<String, Integer> dateIntMap = new TreeMap<String, Integer>();
+		Map<String, Counter> dateIntMap = new TreeMap<String, Counter>();
 		int endYear = Integer.parseInt(endDate.substring(0, 4));
 		int endMonth = Integer.parseInt(endDate.substring(5, 7)) - 1; // 0 - 11
 		int endDay = Integer.parseInt(endDate.substring(8, 10));
@@ -81,6 +81,12 @@ public class Main {
 		for (String dateKey : dateIntMap.keySet()) {
 			System.out.println(dateKey + ": " + dateIntMap.get(dateKey));
 		}
+
+		JSONArray arr = new JSONArray();
+		for (Counter cntr : bins) {
+			arr.put(cntr.cnt);
+		}
+		System.out.println("\narr: "+arr);
 	}
 
 	protected static void processJSONExample() throws JSONException {
