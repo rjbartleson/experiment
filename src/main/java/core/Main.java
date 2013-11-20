@@ -18,8 +18,11 @@ public class Main {
 	private static final TimeZone TZ_UTC = TimeZone.getTimeZone("UTC");
 	private static final SimpleDateFormat DT_FMTR = new SimpleDateFormat(
 			"yyyy-MM-dd");
+	private static final SimpleDateFormat DT_FMTR_STD = new SimpleDateFormat(
+			"yyyy-MM-dd:HH"); // :mm:ss.SSSZ
 	static {
 		DT_FMTR.setTimeZone(TZ_UTC);
+		DT_FMTR_STD.setTimeZone(TZ_UTC);
 	}
 
 	public static final String ST_PILOT = "pilot";
@@ -28,19 +31,39 @@ public class Main {
 
 	public static void main(String[] args) throws JSONException {
 		// processJSONExample();
-		processDateToCounterMapping();
+		// processDateToCounterMapping();
+
+		System.out.println(buildRegExForDateRange("2012-12-16", "2013-03-13", null));
 	}
 
 	protected static void processDateToCounterMapping() {
+		Calendar cal1 = new GregorianCalendar(TZ_UTC);
+		System.out.println("0 hour:" + DT_FMTR_STD.format(cal1.getTime()));
+		cal1.add(Calendar.HOUR_OF_DAY, -1);
+		cal1.set(Calendar.MINUTE, 59);
+		cal1.set(Calendar.SECOND, 59);
+		cal1.set(Calendar.MILLISECOND, 999);
+		System.out.println("last hour:" + DT_FMTR_STD.format(cal1.getTime()));
+		cal1.add(Calendar.HOUR_OF_DAY, -23);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
+		cal1.set(Calendar.MILLISECOND, 0);
+		System.out.println("first hour:" + DT_FMTR_STD.format(cal1.getTime()));
+		for (int i = 0; i < 24; i++) {
+			System.out.println(i + ": " + DT_FMTR_STD.format(cal1.getTime()));
+			cal1.add(Calendar.HOUR_OF_DAY, 1);
+		}
+
 		/*
 		 * set up
 		 */
-		String unit = "days"; // or "weeks"
+		String unit = "weeks"; // or "weeks"
 		int nmbrOfUnits = 35;
+		int nmbrOfDays = nmbrOfUnits * (unit.equals("days") ? 1 : 7);
 		Calendar currCal = new GregorianCalendar(TZ_UTC);
 		currCal.add(Calendar.DAY_OF_MONTH, -1);
 		String endDate = DT_FMTR.format(currCal.getTime());
-		currCal.add(Calendar.DAY_OF_MONTH, -nmbrOfUnits + 1);
+		currCal.add(Calendar.DAY_OF_MONTH, -nmbrOfDays + 1);
 		String startDate = DT_FMTR.format(currCal.getTime());
 
 		/*
@@ -86,7 +109,7 @@ public class Main {
 		for (Counter cntr : bins) {
 			arr.put(cntr.cnt);
 		}
-		System.out.println("\narr: "+arr);
+		System.out.println("\narr: " + arr);
 	}
 
 	protected static void processJSONExample() throws JSONException {
@@ -159,5 +182,96 @@ public class Main {
 		respArr.put(respObj2);
 
 		System.out.println(respArr.toString(4));
+	}
+
+	protected static String buildRegExForDateRange(String lowDate,
+			String highDate, String hourGrp) {
+		Calendar low = getCalendarForDate(lowDate);
+		Calendar high = getCalendarForDate(highDate);
+		Calendar workLow = getCalendarForDate(lowDate);
+		Calendar workHigh = getCalendarForDate(lowDate);
+
+		StringBuilder sb = new StringBuilder();
+		workLow.set(Calendar.DAY_OF_MONTH, 1);
+		workHigh.add(Calendar.MONTH, 1);
+		workHigh.set(Calendar.DAY_OF_MONTH, 1);
+		workHigh.add(Calendar.DAY_OF_MONTH, -1);
+		do {
+			System.out.println("Low:"+DT_FMTR.format(workLow.getTime()));
+			System.out.println("High:"+DT_FMTR.format(workHigh.getTime()));
+			// yyyy-MM-
+			String yrMM = DT_FMTR.format(workLow.getTime()).substring(0, 8);
+			String dd = "";
+			if (!workLow.before(low) && !workHigh.after(high)) {
+				dd = "\\d\\d";
+			} else if (workLow.before(low) && !workHigh.after(high)) {
+				dd = createGroupLowToHigh("" + low.get(Calendar.DAY_OF_MONTH),
+						"" + workHigh.get(Calendar.DAY_OF_MONTH));
+			} else {
+				dd = createGroupLowToHigh("01",
+						"" + high.get(Calendar.DAY_OF_MONTH));
+			}
+
+			if (sb.length() != 0) {
+				sb.append("|");
+			}
+			sb.append(yrMM + dd);
+			if (hourGrp != null) {
+				sb.append(":" + hourGrp);
+			}
+
+			// set workLow to 1st of next month
+			workLow.add(Calendar.MONTH, 1);
+			workLow.set(Calendar.DAY_OF_MONTH, 1);
+			// set workHigh to end of next month
+			workHigh.setTime(workLow.getTime());
+			workHigh.add(Calendar.MONTH, 1);
+			workHigh.set(Calendar.DAY_OF_MONTH, 1);
+			workHigh.add(Calendar.DAY_OF_MONTH, -1);
+		} while (!workLow.after(high));
+
+		return sb.toString();
+	}
+
+	/**
+	 * Creates regular expression group compose of two-digit values ORed
+	 * together from low to high values. Example for "03" to "12" is:
+	 * "(03|04|05|06|07|08|09|10|11|12)".
+	 * 
+	 * @param low
+	 * @param high
+	 * @return
+	 */
+	private static String createGroupLowToHigh(String low, String high) {
+		int start = Integer.parseInt(low);
+		int end = Integer.parseInt(high);
+		StringBuilder sb = new StringBuilder("(" + low);
+		for (int i = start + 1; i <= end; i++) {
+			sb.append("|");
+			if (i < 10) {
+				sb.append("0" + i);
+			} else {
+				sb.append(i);
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	/**
+	 * Obtains a Calendar, with UTC time zone, set to midnight for given date.
+	 * 
+	 * @param date
+	 *            yyyy-MM-dd format
+	 * @return
+	 */
+	private static Calendar getCalendarForDate(String date) {
+		int year = Integer.parseInt(date.substring(0, 4));
+		int month = Integer.parseInt(date.substring(5, 7)) - 1; // 0 - 11
+		int day = Integer.parseInt(date.substring(8));
+		final Calendar cal = new GregorianCalendar(TZ_UTC);
+		cal.clear();
+		cal.set(year, month, day, 0, 0, 0);
+		return cal;
 	}
 }
