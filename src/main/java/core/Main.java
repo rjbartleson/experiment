@@ -6,8 +6,10 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -33,7 +35,34 @@ public class Main {
 		// processJSONExample();
 		// processDateToCounterMapping();
 
-		System.out.println(buildRegExForDateRange("2012-12-16", "2013-03-13", null));
+		//System.out.println(buildRegExForDateHHs("2012-11-15:14", "2012-11-16:22"));
+		//System.out.println(buildRegExForDateRange("2012-11-16", "2013-04-13", "(12|13|14|15)"));
+
+		final Map<String, Counter> countsMap = new TreeMap<String, Counter>();
+		countsMap.put("org one", new Counter(5));
+		countsMap.put("org two", new Counter(7));
+		countsMap.put("org three", new Counter(5));
+		countsMap.put("org four", new Counter(4));
+		countsMap.put("org five", new Counter(7));
+		final TreeMap<Integer, Set<String>> retMap = new TreeMap<Integer, Set<String>>();
+		for (String grpVal : countsMap.keySet()) {
+			Counter cntr = countsMap.get(grpVal);
+			Integer key = new Integer(cntr.cnt);
+			Set<String> set = retMap.get(key);
+			if (set == null) {
+				set = new TreeSet<String>();
+			}
+			set.add(grpVal);
+			retMap.put(key, set);
+		}
+		for (Integer key : retMap.keySet()) {
+			System.out.println(key);
+			Set<String> set = retMap.get(key);
+			for (String org : set) {
+				System.out.print("\t" + org);
+			}
+			System.out.println();
+		}
 	}
 
 	protected static void processDateToCounterMapping() {
@@ -182,6 +211,36 @@ public class Main {
 		respArr.put(respObj2);
 
 		System.out.println(respArr.toString(4));
+	}
+	/**
+	 * No more than two days between low and high values!
+	 * 
+	 * @param low
+	 *            as yyyy-MM-dd:HH value
+	 * @param high
+	 *            as yyyy-MM-dd:HH value
+	 * @return
+	 */
+	protected static String buildRegExForDateHHs(String low, String high) {
+		final String lowDt = low.substring(0, 10);
+		final String lowHH = low.substring(11);
+		final String highDt = high.substring(0, 10);
+		final String highHH = high.substring(11);
+
+		String regex = "";
+		if (lowDt.equals(highDt)) {
+			if (lowHH.equals("00") && highHH.equals("23")) {
+				regex = lowDt + ":\\d\\d";
+			} else {
+				regex = lowDt + ":" + createGroupLowToHigh(lowHH, highHH);
+			}
+		} else {
+			String lowRegex = lowDt + ":" + createGroupLowToHigh(lowHH, "23");
+			String highRegex = highDt + ":"
+					+ createGroupLowToHigh("00", highHH);
+			regex = lowRegex + "|" + highRegex;
+		}
+		return regex;
 	}
 
 	protected static String buildRegExForDateRange(String lowDate,
