@@ -20,10 +20,13 @@ public class Main {
 	private static final TimeZone TZ_UTC = TimeZone.getTimeZone("UTC");
 	private static final SimpleDateFormat DT_FMTR = new SimpleDateFormat(
 			"yyyy-MM-dd");
+	private static final SimpleDateFormat DT_HH_FMTR = new SimpleDateFormat(
+			"yyyy-MM-dd:HH");
 	private static final SimpleDateFormat DT_FMTR_STD = new SimpleDateFormat(
-			"yyyy-MM-dd:HH"); // :mm:ss.SSSZ
+			"yyyy-MM-dd:HH:mm:ss.SSSZ");
 	static {
 		DT_FMTR.setTimeZone(TZ_UTC);
+		DT_HH_FMTR.setTimeZone(TZ_UTC);
 		DT_FMTR_STD.setTimeZone(TZ_UTC);
 	}
 
@@ -62,6 +65,25 @@ public class Main {
 				System.out.print("\t" + org);
 			}
 			System.out.println();
+		}
+
+		Set<String> expKeys = new TreeSet<String>();
+		Calendar cal = new GregorianCalendar(TZ_UTC);
+		cal.add(Calendar.HOUR_OF_DAY, -1);
+		final String highDateHH = DT_HH_FMTR.format(cal.getTime());
+		expKeys.add(highDateHH);
+		for (int i = 0; i < 22; i++) {
+			cal.add(Calendar.HOUR_OF_DAY, -1);
+			expKeys.add(DT_HH_FMTR.format(cal.getTime()));
+		}
+		cal.add(Calendar.HOUR_OF_DAY, -1);
+		final String lowDateHH = DT_HH_FMTR.format(cal.getTime());
+		expKeys.add(lowDateHH);
+
+		System.out.println("\nSize: " + expKeys.size());
+		int j = 0;
+		for (String key : expKeys) {
+			System.out.println(++j + ": " + key);
 		}
 	}
 
